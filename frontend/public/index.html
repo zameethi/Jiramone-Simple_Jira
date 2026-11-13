@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jiramone — Gestão Ágil de Projetos & Sprints</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/config.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <!-- Sidebar estilo Jira Software -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M12.5 2L4 10.5L9.5 16L18 7.5L12.5 2Z" fill="#2684FF"/>
+            <path d="M12.5 9L7 14.5L12.5 20L21 11.5L15.5 6L12.5 9Z" fill="#0052CC"/>
+          </svg>
+        </div>
+        <div>
+          <span class="brand-title">Jiramone</span>
+          <span class="brand-subtitle">Jira Software Clone</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-section-header">
+          <span>PROJETOS</span>
+          <button id="btnNewProject" class="btn-icon" title="Criar novo projeto">+</button>
+        </div>
+        <div id="projectList" class="project-list">
+          <!-- Projetos renderizados dinamicamente -->
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="sidebar-section-header">
+          <span>PLANEJAMENTO & VISÕES</span>
+        </div>
+        <button class="nav-item active" data-view="board">
+          <span class="nav-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="11" rx="1"/></svg>
+          </span>
+          <span>Quadro Kanban</span>
+        </button>
+        <button class="nav-item" data-view="epics">
+          <span class="nav-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </span>
+          <span>Épicos & Hierarquia</span>
+        </button>
+        <button class="nav-item" data-view="backlog">
+          <span class="nav-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>
+          </span>
+          <span>Backlog & Lista</span>
+        </button>
+        <button class="nav-item" data-view="dashboard">
+          <span class="nav-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+          </span>
+          <span>Métricas & Sprint</span>
+        </button>
+        <button class="nav-item" data-view="manage">
+          <span class="nav-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </span>
+          <span>Painel de Exclusão</span>
+        </button>
+        <button class="nav-item" data-view="import">
+          <span class="nav-icon" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </span>
+          <span>Importar Jira CSV</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div id="userBox" class="user-box">
+          <!-- Estado de autenticação -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- Área Principal -->
+    <main class="main-area">
+      <!-- Topbar -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <div class="breadcrumb">
+            <span class="breadcrumb-root">Projetos</span>
+            <span>/</span>
+            <span id="currentProjectKey" class="project-key-badge">JIR</span>
+            <h1 id="currentProjectName" class="project-title">Carregando projeto...</h1>
+          </div>
+          <p id="currentProjectDesc" class="project-desc"></p>
+        </div>
+
+        <div class="topbar-right">
+          <button id="btnDeleteProject" class="btn btn-ghost btn-sm hidden" title="Excluir projeto atual" style="color: var(--jira-danger);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Excluir Projeto
+          </button>
+          <button id="btnManageColumns" class="btn btn-secondary" title="Adicionar ou gerenciar colunas do Kanban">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Gerenciar Colunas
+          </button>
+          <button id="btnCreateIssue" class="btn btn-primary">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Criar Issue
+          </button>
+        </div>
+      </header>
+
+      <!-- Barra de Filtros (estilo Jira Board) -->
+      <section class="filters-bar">
+        <div class="search-wrapper">
+          <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Buscar por chave (ex: JIR-1), título ou tag..."
+          />
+        </div>
+
+        <div class="filter-group">
+          <select id="filterEpic" class="filter-select" title="Filtrar por Épico">
+            <option value="">Todos os Épicos</option>
+            <option value="__NONE__">Sem Épico vinculado</option>
+          </select>
+
+          <select id="filterType" class="filter-select" title="Filtrar por Tipo">
+            <option value="">Todos os Tipos</option>
+            <option value="STORY">📗 Story</option>
+            <option value="TASK">☑️ Task</option>
+            <option value="BUG">🐞 Bug</option>
+            <option value="EPIC">⚡ Epic</option>
+          </select>
+
+          <select id="filterPriority" class="filter-select" title="Filtrar por Prioridade">
+            <option value="">Todas as Prioridades</option>
+            <option value="URGENT">🔥 Urgente</option>
+            <option value="HIGH">🔼 Alta</option>
+            <option value="MEDIUM">➖ Média</option>
+            <option value="LOW">🔽 Baixa</option>
+          </select>
+
+          <div id="avatarFilters" class="avatar-filters" title="Filtrar por Responsável">
+            <!-- Avatares da equipe -->
+          </div>
+
+          <button id="btnClearFilters" class="btn btn-ghost btn-sm">Limpar filtros</button>
+        </div>
+      </section>
+
+      <!-- Conteúdo das Visões -->
+      <div class="view-container">
+        <!-- 1. Visão Quadro Kanban -->
+        <section id="viewBoard" class="view-section active">
+          <div id="kanbanBoard" class="kanban-board">
+            <!-- Colunas BACKLOG, TODO, IN_PROGRESS, IN_REVIEW, DONE -->
+          </div>
+        </section>
+
+        <!-- 1b. Visão Épicos & Hierarquia -->
+        <section id="viewEpics" class="view-section">
+          <div class="epics-view-container">
+            <div class="epics-view-header">
+              <div>
+                <h2>Épicos &amp; Hierarquia de Entregas</h2>
+                <p class="epics-view-sub">
+                  Acompanhe os Épicos como entregas de valor e visualize suas Histórias, Bugs e Tarefas vinculadas.
+                </p>
+              </div>
+              <button id="btnCreateEpicFromView" class="btn btn-primary">
+                + Novo Épico
+              </button>
+            </div>
+            <div id="epicsSummary" class="epics-summary-grid"></div>
+            <div id="epicsHierarchyList" class="epics-hierarchy-list"></div>
+          </div>
+        </section>
+
+        <!-- 2. Visão Backlog & Lista -->
+        <section id="viewBacklog" class="view-section">
+          <div class="backlog-header">
+            <h2>Backlog do Projeto</h2>
+            <span id="backlogCount" class="badge-neutral">0 itens</span>
+          </div>
+          <div class="table-container">
+            <table class="jira-table">
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Chave</th>
+                  <th>Título</th>
+                  <th>Sprint</th>
+                  <th>Prioridade</th>
+                  <th>Story Points</th>
+                  <th>Responsável</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="backlogTableBody">
+                <!-- Linhas geradas dinamicamente -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- 3. Visão Dashboard & Métricas -->
+        <section id="viewDashboard" class="view-section">
+          <div id="dashboardContent" class="dashboard-grid">
+            <!-- Estatísticas e gráficos do projeto -->
+          </div>
+        </section>
+
+        <!-- 4. Visão Painel de Gerenciamento & Exclusão -->
+        <section id="viewManage" class="view-section">
+          <div class="manage-panel-container">
+            <div class="manage-panel-header">
+              <div>
+                <h2>🗑️ Painel de Exclusão e Limpeza</h2>
+                <p class="manage-panel-sub">
+                  Gerencie e remova projetos inteiros (incluindo todas as suas tarefas) ou exclua issues individuais e em massa.
+                </p>
+              </div>
+            </div>
+
+            <!-- Bloco 1: Exclusão de Projetos -->
+            <div class="manage-card">
+              <div class="manage-card-title">
+                <h3>📁 Projetos Cadastrados</h3>
+                <span class="badge-neutral" id="manageProjectsCount">0 projetos</span>
+              </div>
+              <p class="manage-card-desc">
+                Atenção: Ao excluir um projeto, <strong>todas as suas tarefas, sprints e comentários associados serão apagados permanentemente</strong>.
+              </p>
+              <div class="table-container-compact">
+                <table class="jira-table">
+                  <thead>
+                    <tr>
+                      <th>Chave</th>
+                      <th>Nome do Projeto</th>
+                      <th>Total de Issues</th>
+                      <th>Taxa Conclusão</th>
+                      <th>Criador</th>
+                      <th style="text-align: right;">Ação</th>
+                    </tr>
+                  </thead>
+                  <tbody id="manageProjectsTableBody">
+                    <!-- Gerado dinamicamente -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Bloco 2: Exclusão de Issues do Projeto Selecionado -->
+            <div class="manage-card" style="margin-top: 24px;">
+              <div class="manage-card-title">
+                <div>
+                  <h3 id="manageIssuesSectionTitle">📝 Issues do Projeto Ativo</h3>
+                  <span id="manageIssuesProjectBadge" class="project-key-badge">-</span>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button id="btnBulkDeleteIssues" class="btn btn-danger btn-sm" disabled>
+                    🗑️ Excluir Selecionadas (<span id="selectedIssuesCount">0</span>)
+                  </button>
+                  <button id="btnClearAllIssuesFromProject" class="btn btn-danger btn-sm">
+                    ⚠️ Apagar TODAS as Issues deste Projeto
+                  </button>
+                </div>
+              </div>
+              <p class="manage-card-desc">
+                Selecione as tarefas individuais que deseja remover ou limpe todas as issues deste projeto de uma vez.
+              </p>
+              <div class="table-container-compact">
+                <table class="jira-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 32px;">
+                        <input type="checkbox" id="checkSelectAllIssues" title="Selecionar todas" />
+                      </th>
+                      <th>Tipo</th>
+                      <th>Chave</th>
+                      <th>Título</th>
+                      <th>Status</th>
+                      <th>Prioridade</th>
+                      <th>Responsável</th>
+                      <th style="text-align: right;">Ação</th>
+                    </tr>
+                  </thead>
+                  <tbody id="manageIssuesTableBody">
+                    <!-- Gerado dinamicamente -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. Visão Importador de CSV do Jira -->
+        <section id="viewImport" class="view-section">
+          <div class="manage-panel-container">
+            <div class="manage-panel-header">
+              <h2>📥 Importar Dados do Jira (CSV)</h2>
+              <p class="manage-panel-sub">
+                Importe dados reais extraídos do Jira diretamente para o projeto, criando automaticamente usuários, colunas e tarefas com campos completos.
+              </p>
+            </div>
+
+            <div class="manage-card">
+              <div class="manage-card-title">
+                <h3>📄 Arquivo Detectado na Raiz do Projeto</h3>
+                <span id="importFileStatusBadge" class="badge-neutral">Verificando...</span>
+              </div>
+              <p id="importFileDesc" class="manage-card-desc">
+                Consultando informações do arquivo Jira.csv na raiz do projeto...
+              </p>
+
+              <form id="importForm" style="margin-top: 16px; display: flex; flex-direction: column; gap: 16px;">
+                <div class="form-group">
+                  <label for="importCsvFile">Selecionar Arquivo CSV do Jira (Opcional — deixe vazio para usar o Jira.csv da raiz)</label>
+                  <input
+                    type="file"
+                    id="importCsvFile"
+                    accept=".csv,text/csv"
+                    class="form-control"
+                  />
+                </div>
+
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label for="importLimit">Quantidade de Linhas a Importar</label>
+                    <select id="importLimit" class="form-control">
+                      <option value="50">50 primeiras issues (Demonstração ultra-rápida)</option>
+                      <option value="250" selected>250 issues (Recomendado)</option>
+                      <option value="500">500 issues (Importação ampla)</option>
+                      <option value="0">Todas as issues do arquivo (Completo)</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="importProjectKeyOverride">Chave do Projeto (Opcional)</label>
+                    <input
+                      type="text"
+                      id="importProjectKeyOverride"
+                      class="form-control"
+                      placeholder="Deixe em branco para usar a chave do CSV (ex: LR)"
+                    />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label for="importProjectNameOverride">Nome do Projeto (Opcional)</label>
+                  <input
+                    type="text"
+                    id="importProjectNameOverride"
+                    class="form-control"
+                    placeholder="Deixe em branco para usar o nome do CSV (ex: Logística Abastecimento)"
+                  />
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
+                  <button type="submit" id="btnStartImport" class="btn btn-primary">
+                    🚀 Iniciar Importação
+                  </button>
+                  <span id="importProgressText" style="font-size: 13px; color: var(--jira-text-sub);"></span>
+                </div>
+              </form>
+
+              <!-- Resultado da Importação -->
+              <div id="importResultBox" class="hidden" style="margin-top: 20px; padding: 16px; background: #e3fcef; border: 1px solid #abf5d1; border-radius: 4px;">
+                <h4 style="color: #006644; margin-bottom: 8px;">✅ Importação Realizada com Sucesso!</h4>
+                <div id="importResultStats" style="font-size: 13px; color: #172b4d; display: flex; flex-direction: column; gap: 4px;"></div>
+                <button type="button" id="btnGoToBoardAfterImport" class="btn btn-demo btn-sm" style="margin-top: 12px; align-self: flex-start;">
+                  Ir para o Quadro Kanban ➔
+                </button>
+              </div>
+            </div>
+
+            <!-- Campos Mapeados como Modelo -->
+            <div class="manage-card" style="margin-top: 24px;">
+              <div class="manage-card-title">
+                <h3>📋 Modelo de Campos Mapeados do Jira</h3>
+              </div>
+              <p class="manage-card-desc">
+                Os seguintes campos do seu arquivo <strong>Jira.csv</strong> são automaticamente interpretados e sincronizados:
+              </p>
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; font-size: 12.5px;">
+                <div style="background: #f4f5f7; padding: 10px; border-radius: 4px;">
+                  <strong>Identificação:</strong> Resumo, Chave da item (ex: LR-528), ID da item, Chave pai
+                </div>
+                <div style="background: #f4f5f7; padding: 10px; border-radius: 4px;">
+                  <strong>Fluxo & Status:</strong> Status (Concluído, Para Fazer, Em Dev...), Categoria de Status
+                </div>
+                <div style="background: #f4f5f7; padding: 10px; border-radius: 4px;">
+                  <strong>Classificação:</strong> Tipo (História, Bug, Epic, Subtarefa, Tarefa), Prioridade (Gravíssima, Alta...)
+                </div>
+                <div style="background: #f4f5f7; padding: 10px; border-radius: 4px;">
+                  <strong>Ágil & Estimativas:</strong> Story Points, Sprint, Estimativa de esforço
+                </div>
+                <div style="background: #f4f5f7; padding: 10px; border-radius: 4px;">
+                  <strong>Pessoas:</strong> Responsável, Relator/Criador, Líder do projeto
+                </div>
+                <div style="background: #f4f5f7; padding: 10px; border-radius: 4px;">
+                  <strong>Detalhes & Contexto:</strong> Ambiente (PROD, HLG), Componentes, Categorias/Tags, Comentários
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal: Criar / Editar Issue Detalhada -->
+  <div id="issueModal" class="modal-backdrop hidden">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <span id="modalIssueTypeBadge" class="type-pill">TASK</span>
+          <span id="modalIssueKey" class="issue-key-label">NOVA ISSUE</span>
+        </div>
+        <button class="modal-close" data-close="issueModal">✕</button>
+      </div>
+
+      <form id="issueForm" class="modal-body issue-modal-grid">
+        <input type="hidden" id="issueId" />
+
+        <!-- Coluna Esquerda: Conteúdo principal e Comentários -->
+        <div class="issue-main-col">
+          <div class="form-group">
+            <label for="issueTitle">Título da Issue *</label>
+            <input
+              type="text"
+              id="issueTitle"
+              class="form-control form-control-title"
+              placeholder="Resumo claro da entrega ou problema..."
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="issueDescription">Descrição</label>
+            <textarea
+              id="issueDescription"
+              class="form-control"
+              rows="3"
+              placeholder="Detalhe os critérios de aceite, passos para reproduzir ou contexto técnico..."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="issueLabels">Labels / Tags (separadas por vírgula)</label>
+            <input
+              type="text"
+              id="issueLabels"
+              class="form-control"
+              placeholder="ex: frontend, auth, sprint-14"
+            />
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="issueEnvironment">Ambiente (Environment)</label>
+              <input
+                type="text"
+                id="issueEnvironment"
+                class="form-control"
+                placeholder="Ex: PROD, HLG, DEV"
+              />
+            </div>
+            <div class="form-group">
+              <label for="issueComponents">Componentes</label>
+              <input
+                type="text"
+                id="issueComponents"
+                class="form-control"
+                placeholder="Ex: API Gateway, Frontend, Database"
+              />
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="issueParentKey">Épico / Item Pai Vinculado</label>
+              <select id="issueParentKey" class="form-control">
+                <option value="">Nenhum (Item raiz)</option>
+              </select>
+              <div id="issueParentLinkBox" class="parent-link-box hidden"></div>
+            </div>
+            <div class="form-group">
+              <label for="issueResolution">Resolução</label>
+              <input
+                type="text"
+                id="issueResolution"
+                class="form-control"
+                placeholder="Ex: Itens concluídos, Feito"
+              />
+            </div>
+          </div>
+
+          <!-- Sub-produtos / Itens Filhos (visível quando a issue é um Épico ou tem subtarefas) -->
+          <div id="issueChildrenSection" class="issue-children-section hidden">
+            <div class="issue-children-header">
+              <h3>Itens Vinculados (Sub-produtos)</h3>
+              <button type="button" id="btnAddChildToEpic" class="btn btn-secondary btn-sm">
+                + Adicionar Sub-item
+              </button>
+            </div>
+            <div id="issueChildrenProgress" class="epic-progress-wrap"></div>
+            <div id="issueChildrenList" class="issue-children-list"></div>
+          </div>
+
+          <!-- Seção de Comentários (visível ao editar uma Issue existente) -->
+          <div id="commentsSection" class="comments-section hidden">
+            <h3>Comentários da Issue</h3>
+            <div id="commentsList" class="comments-list"></div>
+            <div class="comment-editor">
+              <div class="comment-toolbar">
+                <button type="button" id="btnCommentBold" class="comment-tool-btn" title="Negrito (**texto**)">
+                  <strong>B</strong>
+                </button>
+                <button type="button" id="btnCommentCode" class="comment-tool-btn" title="Citação de código (`código` ou ```bloco```)">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                  <span>Código</span>
+                </button>
+                <button type="button" id="btnCommentImage" class="comment-tool-btn" title="Inserir imagem (upload ou Ctrl+V)">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <span>Imagem</span>
+                </button>
+                <input type="file" id="commentImageInput" accept="image/*" class="hidden" />
+                <span class="comment-shortcut-hint">Ctrl+Enter para enviar</span>
+              </div>
+              <textarea
+                id="newCommentInput"
+                class="form-control comment-textarea"
+                rows="3"
+                placeholder="Escreva um comentário... (suporta **negrito**, `código`, ```bloco``` ou colar/anexar imagem)"
+              ></textarea>
+              <div class="comment-editor-footer">
+                <button type="button" id="btnAddComment" class="btn btn-secondary btn-sm">
+                  Comentar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coluna Direita: Metadados estilo Jira -->
+        <div class="issue-meta-col">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="issueStatus">Status</label>
+              <select id="issueStatus" class="form-control">
+                <option value="BACKLOG">Backlog</option>
+                <option value="TODO">A Fazer (To Do)</option>
+                <option value="IN_PROGRESS">Em Progresso</option>
+                <option value="IN_REVIEW">Em Revisão (Code Review)</option>
+                <option value="DONE">Concluído (Done)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="issueType">Tipo de Issue</label>
+              <select id="issueType" class="form-control">
+                <option value="STORY">📗 Story (História)</option>
+                <option value="TASK">☑️ Task (Tarefa)</option>
+                <option value="BUG">🐞 Bug (Defeito)</option>
+                <option value="EPIC">⚡ Epic (Épico)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="issuePriority">Prioridade</label>
+              <select id="issuePriority" class="form-control">
+                <option value="LOW">🔽 Baixa (Low)</option>
+                <option value="MEDIUM" selected>➖ Média (Medium)</option>
+                <option value="HIGH">🔼 Alta (High)</option>
+                <option value="URGENT">🔥 Urgente (Urgent)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="issueDueDate">Data de Entrega</label>
+              <input
+                type="date"
+                id="issueDueDate"
+                class="form-control"
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="issueAssignee">Responsável (Assignee)</label>
+            <select id="issueAssignee" class="form-control">
+              <option value="">Não atribuído</option>
+            </select>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="issuePoints">Story Points</label>
+              <input
+                type="number"
+                id="issuePoints"
+                class="form-control"
+                min="0"
+                max="100"
+                placeholder="Ex: 5"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="issueSprint">Sprint</label>
+              <input
+                type="text"
+                id="issueSprint"
+                class="form-control"
+                placeholder="Ex: Sprint 14"
+              />
+            </div>
+          </div>
+
+          <div class="modal-actions-vertical">
+            <button type="submit" class="btn btn-primary btn-block">Salvar Issue</button>
+            <button
+              type="button"
+              id="btnDeleteIssue"
+              class="btn btn-danger btn-block hidden"
+            >
+              Excluir Issue
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Novo Projeto -->
+  <div id="projectModal" class="modal-backdrop hidden">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3>Criar Novo Projeto</h3>
+        <button class="modal-close" data-close="projectModal">✕</button>
+      </div>
+      <form id="projectForm" class="modal-body">
+        <div class="form-group">
+          <label for="projectName">Nome do Projeto *</label>
+          <input
+            type="text"
+            id="projectName"
+            class="form-control"
+            placeholder="Ex: Plataforma E-commerce"
+            required
+          />
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label for="projectKey">Chave (Key Jira)</label>
+            <input
+              type="text"
+              id="projectKey"
+              class="form-control"
+              maxlength="6"
+              placeholder="Ex: ECOM"
+            />
+          </div>
+          <div class="form-group">
+            <label for="projectCategory">Categoria</label>
+            <select id="projectCategory" class="form-control">
+              <option value="SOFTWARE">Software</option>
+              <option value="DEVOPS">DevOps & Infra</option>
+              <option value="PRODUCT">Produto & Design</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="projectDescription">Descrição</label>
+          <textarea
+            id="projectDescription"
+            class="form-control"
+            rows="3"
+            placeholder="Objetivo do projeto e escopo..."
+          ></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" data-close="projectModal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Criar Projeto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Autenticação (Login / Cadastro / Demo) -->
+  <div id="authModal" class="modal-backdrop hidden">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3 id="authModalTitle">Entrar no Jiramone</h3>
+        <button class="modal-close" data-close="authModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <button type="button" id="btnDemoLogin" class="btn btn-demo btn-block">
+          ⚡ Entrar com Conta Demo (1-Clique)
+        </button>
+        <div class="divider"><span>ou use seu e-mail</span></div>
+        <form id="authForm">
+          <div id="authNameGroup" class="form-group hidden">
+            <label for="authName">Seu Nome</label>
+            <input type="text" id="authName" class="form-control" placeholder="Ex: Maria Silva" />
+          </div>
+          <div class="form-group">
+            <label for="authEmail">E-mail</label>
+            <input
+              type="email"
+              id="authEmail"
+              class="form-control"
+              placeholder="demo@jiramone.dev"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="authPassword">Senha</label>
+            <input
+              type="password"
+              id="authPassword"
+              class="form-control"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+          <button type="submit" id="btnAuthSubmit" class="btn btn-primary btn-block">
+            Entrar
+          </button>
+        </form>
+        <p class="auth-switch">
+          <span id="authSwitchText">Não tem conta?</span>
+          <button type="button" id="btnToggleAuthMode" class="btn-link">Criar conta</button>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Gerenciar / Adicionar Colunas do Kanban -->
+  <div id="columnsModal" class="modal-backdrop hidden">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3>Colunas do Quadro Kanban</h3>
+        <button class="modal-close" data-close="columnsModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 12.5px; color: var(--jira-text-sub); margin-bottom: 12px;">
+          Personalize as etapas do fluxo de trabalho do seu projeto.
+        </p>
+
+        <div id="columnsManagerList" class="columns-manager-list" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;">
+          <!-- Linhas de colunas existentes -->
+        </div>
+
+        <div class="divider"><span>Adicionar Nova Coluna</span></div>
+
+        <form id="addColumnForm" style="display: flex; gap: 8px;">
+          <input
+            type="text"
+            id="newColumnTitle"
+            class="form-control"
+            placeholder="Nome da coluna (ex: Em Teste, Homologação)..."
+            required
+            style="flex: 1;"
+          />
+          <button type="submit" class="btn btn-primary">+ Adicionar</button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" data-close="columnsModal">Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Confirmação de Importação -->
+  <div id="importConfirmModal" class="modal-backdrop hidden">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3>Confirmar Importação do Jira</h3>
+        <button class="modal-close" data-close="importConfirmModal">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13.5px; color: var(--jira-text-main); margin-bottom: 12px;">
+          Deseja remover os itens (issues) atuais do projeto antes de importar o arquivo?
+        </p>
+        <p id="importConfirmFileLabel" style="font-size: 12px; color: var(--jira-text-sub); margin-bottom: 16px;"></p>
+        <div class="modal-actions-vertical">
+          <button type="button" id="btnConfirmImportClear" class="btn btn-danger btn-block">
+            🗑️ Remover itens atuais e importar
+          </button>
+          <button type="button" id="btnConfirmImportKeep" class="btn btn-primary btn-block">
+            ➕ Manter itens atuais e importar
+          </button>
+          <button type="button" class="btn btn-ghost btn-block" data-close="importConfirmModal">
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de Notificação -->
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

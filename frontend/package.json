@@ -1,0 +1,17 @@
+{
+  "name": "jiramone-frontend",
+  "version": "1.0.0",
+  "description": "Interface Web estilo Jira para o gerenciador de projetos Jiramone",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": [
+    "jira",
+    "kanban",
+    "project-management",
+    "frontend"
+  ]
+}
