@@ -1,0 +1,8 @@
+# Dados exportados do Jira (não subir para o repositório)
+Jira.csv
+
+# Dependências e builds
+node_modules/
+dist/
+dist-test/
+.env
