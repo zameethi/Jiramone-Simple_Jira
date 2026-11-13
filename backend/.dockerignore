@@ -5,4 +5,4 @@ dist-test
 .git
 .gitignore
 npm-debug.log
-*.csv
+Jira.csv
